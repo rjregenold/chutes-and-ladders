@@ -1,6 +1,5 @@
 module Main where
 
-import Board
-import Player
+import Game
 
-main = putStrLn $ show emptyGameBoard
+main = playGame
