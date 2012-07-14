@@ -1,4 +1,4 @@
-module Spinner
+module Game.ChutesAndLadders.Spinner
   (
     spinSpinner
   ) where

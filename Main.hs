@@ -1,5 +1,5 @@
 module Main where
 
-import Game
+import Game.ChutesAndLadders.Game (playGame)
 
 main = playGame

@@ -1,5 +1,6 @@
-module Board
+module Game.ChutesAndLadders.Board
   (
+    GameBoard,
     emptyGameBoard
   ) where
 
