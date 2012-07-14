@@ -1,8 +1,11 @@
 name:                chutesandladders
 version:             0.1.0.0
 synopsis:            ASCII Chutes and Ladders
--- description:         
-homepage:            http://github.com/rjregenold/chutes-and-ladders
+description:
+  .
+  An ASCII version of a childhood favorite game.
+  .
+homepage:            https://github.com/rjregenold/chutes-and-ladders
 license:             MIT
 license-file:        LICENSE
 author:              RJ Regenold
@@ -14,7 +17,6 @@ cabal-version:       >=1.8
 
 executable chutes
   main-is:          Main.hs
-  -- other-modules:       
   build-depends:    base == 4.5.*,
                     split == 0.1.4.3,
                     boxes == 0.1.2,
