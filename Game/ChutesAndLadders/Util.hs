@@ -5,6 +5,7 @@ module Game.ChutesAndLadders.Util
   ) where
 
 import qualified Data.Text as T
+import Text.PrettyPrint.Boxes
 
 replaceElem :: [a] -> Int -> a -> [a]
 replaceElem xs i x = y ++ (x : z) where

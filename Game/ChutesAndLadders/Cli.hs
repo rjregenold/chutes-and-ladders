@@ -2,6 +2,11 @@ module Game.ChutesAndLadders.Cli where
 
 import Game.ChutesAndLadders.Util (trim)
 
+printWelcome = do
+  printPadding
+  pSpaceA "Welcome to Chutes and Ladders."
+  pSpaceA "Please provide the following information to begin:"
+
 promptNumPlayers = do
   putStrLn "How many players (2-4)?"
   number <- getLine
@@ -13,7 +18,7 @@ promptNumPlayers = do
 
 promptPlayerName :: Int -> IO String
 promptPlayerName number = do
-  putStrLn $ "Player " ++ show number ++ ", please enter your name."
+  pSpaceB $ "Player " ++ show number ++ ", please enter your name."
   name <- getLine
   case trim name of
     x | not $ null x -> return x
@@ -21,5 +26,10 @@ promptPlayerName number = do
 
 promptTurn name = do
   putStrLn $ name ++ ", it's your turn!"
-  putStrLn "Press any key to spin the spinner."
-  getChar
+  putStrLn "Press [Enter] to spin the spinner."
+  getLine
+
+printPadding = putStrLn "\n\n\n"
+
+pSpaceB s = putStrLn $ "\n" ++ s
+pSpaceA s = putStrLn $ s ++ "\n"

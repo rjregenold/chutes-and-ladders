@@ -1,12 +1,18 @@
 module Game.ChutesAndLadders.Board
   (
     GameBoard,
-    emptyGameBoard
+    emptyGameBoard,
+    renderBoardBoxes,
+    Tile(..),
+    tileAt
   ) where
 
 import Data.List (sortBy, transpose)
 import Data.List.Split (chunk)
+import Data.Ord (comparing)
 import Text.PrettyPrint.Boxes
+
+import Game.ChutesAndLadders.Types
 
 data Tile = Blank | Ladder Int | Chute Int
   deriving Eq
@@ -25,11 +31,11 @@ instance Show Tile where
   show (Ladder x) = "l|" ++ show x
   show (Chute x) = "c|" ++ show x
 
+instance Boxable GameBoard where
+  boxes (GameBoard b) = map (text . show) b
+
 instance Show GameBoard where
-  show (GameBoard b) = render $ hsep 1 left (map (vcat left . map makeText) rows) where
-    makeText = text . show
-    rows = chunk 10 $ showBoard
-    showBoard = (rotateBoard lbToSbXs . rotateBoard gbToLbXs) b
+  show b = renderBoardBoxes . boxes $ b
 
 layoutBoard = LayoutBoard [
   Blank,     Blank,     Chute 77,  Blank,     Blank,     Chute 74,  Blank,     Chute 72,  Blank,     Blank,
@@ -49,9 +55,8 @@ layoutBoard = LayoutBoard [
 --   [3, 2, 1, 0]
 -- this function would return
 --   [4, 3, 2, 1]
-rotateBoard :: [Int] -> Board -> Board
-rotateBoard xs b = (map snd . sortBy cmp) $ zip xs b where
-  cmp a b = compare (fst a) (fst b)
+rotateBoard :: [Int] -> [a] -> [a]
+rotateBoard xs b = map snd . sortBy (comparing fst) $ zip xs b where
 
 -- generates common shift indexes using the given test.
 shiftIndexes :: (Int -> Bool) -> [Int]
@@ -74,3 +79,10 @@ toGameBoard :: LayoutBoard -> GameBoard
 toGameBoard (LayoutBoard b) = GameBoard $ rotateBoard lbToGbXs b
 
 emptyGameBoard = toGameBoard layoutBoard
+
+renderBoardBoxes :: [Box] -> String
+renderBoardBoxes b = render $ hsep 1 left $ map (vcat left) rows where
+    rows = chunk 10 showBoard
+    showBoard = rotateBoard lbToSbXs . rotateBoard gbToLbXs $ b
+
+tileAt (GameBoard b) i = b !! i
