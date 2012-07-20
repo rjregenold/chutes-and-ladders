@@ -29,6 +29,15 @@ promptTurn name = do
   putStrLn "Press [Enter] to spin the spinner."
   getLine
 
+promptNumber :: String -> Int -> Int -> IO Int
+promptNumber p mn mx = do
+  putStrLn p
+  number <- getLine
+  case reads number :: [(Int, String)] of
+    [(x, _)] | x `elem` [mn..mx] -> return x
+    _ -> do
+      promptNumber p mn mx
+
 printPadding = putStrLn "\n\n\n"
 
 pSpaceB s = putStrLn $ "\n" ++ s

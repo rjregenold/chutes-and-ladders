@@ -5,21 +5,24 @@ import Data.List (groupBy, sortBy)
 import Data.Ord (comparing)
 import Text.PrettyPrint.Boxes
 
-import Game.ChutesAndLadders.Cli (promptPlayerName)
+import Game.ChutesAndLadders.Cli (promptNumber, promptPlayerName)
 import Game.ChutesAndLadders.Types
 import Game.ChutesAndLadders.Util
 
 data Player = Player {
   number :: Int,
   name :: String,
-  currentIndex :: Int
+  currentIndex :: Int,
+  character :: String
 }
 
 instance Boxable Player where
   boxes p = [text . show $ p]
 
 instance Show Player where
-  show p = show $ number p
+  show p = character p
+
+characters = ["♘", "☃", "☺", "✿", "❤", "☼", "☁", "✝", "❀", "★"]
 
 -- groups players by currentIndex
 groupPlayers ps = groupBy f ps' where
@@ -35,7 +38,18 @@ makePlayers :: Int -> IO [Player]
 makePlayers count = mapM playerInfo [1..count] where
   playerInfo x = do
     name <- promptPlayerName x
-    return Player { number = x, name = name, currentIndex = -1 }
+    char <- selectCharacter characters
+    return Player { number = x, name = name, currentIndex = -1, character = char }
+
+selectCharacter :: [String] -> IO String
+selectCharacter cs = 
+  let mx = length cs
+      cs' = concatMap f $ zip [1..mx] cs
+      f (i, x) = concat [show i, ") ", x, "  "]
+      prompt = "Please choose a character:\n" ++ cs'
+  in do
+    x <- promptNumber prompt 1 mx
+    return $ cs !! (x-1)
 
 playerBoxes :: [Player] -> [(Int, Box)]
 playerBoxes ps = map f ps' where

@@ -73,15 +73,21 @@ gbToLbXs = shiftIndexes (\x -> mod x 2 == 1)
 -- shift indexes to convert the LayoutBoard into a format suitable for
 -- printing. the boxes lib requires printing each column and then joining them
 -- horizontally. this shift index basically swaps rows and columns.
-lbToSbXs = (concat . transpose . chunk 10) [0..99]
+lbToSbXs = concat . transpose . chunk 10 $ [0..99]
 
 toGameBoard :: LayoutBoard -> GameBoard
 toGameBoard (LayoutBoard b) = GameBoard $ rotateBoard lbToGbXs b
 
+box1x1 = emptyBox 1 1
+boxArrows = concat . take 5 . repeat
+leftArrows = boxArrows [box1x1, text "->"]
+rightArrows = boxArrows [text "<-", box1x1]
+
 emptyGameBoard = toGameBoard layoutBoard
 
 renderBoardBoxes :: [Box] -> String
-renderBoardBoxes b = render $ hsep 1 left $ map (vcat left) rows where
+renderBoardBoxes b = render $ hsep 1 left $ map (vcat center1) withArrows where
+    withArrows = [leftArrows] ++ rows ++ [rightArrows]
     rows = chunk 10 showBoard
     showBoard = rotateBoard lbToSbXs . rotateBoard gbToLbXs $ b
 
