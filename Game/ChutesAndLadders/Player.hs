@@ -42,8 +42,7 @@ makePlayers count = makePlayers' 1 count characters where
                       | otherwise = do
     player <- makePlayer x cs
     cs' <- return $ cs \\ [character player]
-    next <- makePlayers' (x+1) z cs'
-    return $ player : next
+    fmap (player :) $ makePlayers' (x+1) z cs'
 
 makePlayer :: Int -> Characters -> IO Player
 makePlayer x cs = do

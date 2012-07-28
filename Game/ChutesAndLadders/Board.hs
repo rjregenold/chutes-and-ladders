@@ -4,7 +4,8 @@ module Game.ChutesAndLadders.Board
     emptyGameBoard,
     renderBoardBoxes,
     Tile(..),
-    tileAt
+    tileAt,
+    numTiles
   ) where
 
 import Data.List (sortBy, transpose)
@@ -92,3 +93,5 @@ renderBoardBoxes b = render $ hsep 1 left $ map (vcat center1) withArrows where
     showBoard = rotateBoard lbToSbXs . rotateBoard gbToLbXs $ b
 
 tileAt (GameBoard b) i = b !! i
+
+numTiles (GameBoard b) = length b

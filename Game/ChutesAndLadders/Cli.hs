@@ -38,6 +38,10 @@ promptNumber p mn mx = do
     _ -> do
       promptNumber p mn mx
 
+printWinner x = do
+  pSpaceA $ x ++ " wins!!"
+  pSpaceA "Thanks for playing."
+
 printPadding = putStrLn "\n\n\n"
 
 pSpaceB s = putStrLn $ "\n" ++ s

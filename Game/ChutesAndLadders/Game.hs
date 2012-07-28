@@ -3,6 +3,7 @@ module Game.ChutesAndLadders.Game
     playGame
   ) where
 
+import Data.List (find)
 import qualified Data.Traversable as DT (traverse)
 
 import Game.ChutesAndLadders.Board
@@ -17,18 +18,30 @@ type Steps = Int
 
 data Move = Move Player Steps
 
+player (Move p _) = p
+
 getPlayers = do
   numPlayers <- promptNumPlayers
   makePlayers numPlayers
 
 move :: GameBoard -> Move -> (Player, Maybe String)
-move b (Move p s) = (,) p { currentIndex = i } m where
-  oldIndex = currentIndex p
-  newIndex = oldIndex + s
-  (i,m) = case tileAt b newIndex of
+move b m = (,) p { currentIndex = i } msg where
+  p = player m
+  idx = newIndex b m
+  (i,msg) = case tileAt b idx of
     (Ladder x) -> (x, Just $ "You climbed a ladder to tile " ++ show x ++ "!")
     (Chute x) -> (x, Just $ "You slid down a chute to tile " ++ show x ++ ". :(")
-    _ -> (newIndex, Nothing)
+    _ -> (idx, Nothing)
+
+isValidMove :: GameBoard -> Move -> Bool
+isValidMove b m = (propIndex b m) < (numTiles b)
+
+-- proposed index
+propIndex :: GameBoard -> Move -> Int
+propIndex b (Move p s) = currentIndex p + s
+
+newIndex b m | isValidMove b m = propIndex b m
+newIndex _ (Move p _) = currentIndex p
 
 renderBoardAndPlayers :: GameBoard -> [Player] -> String
 renderBoardAndPlayers b ps = renderBoardBoxes $ foldr f bs' ps' where
@@ -36,6 +49,10 @@ renderBoardAndPlayers b ps = renderBoardBoxes $ foldr f bs' ps' where
   ps' = playerBoxes ps
   f (i,x) acc | i >= 0 = replaceElem acc i x
               | otherwise = acc
+
+checkWinner :: GameBoard -> [Player] -> Maybe Player
+checkWinner b ps = find f ps where
+  f p = currentIndex p == (numTiles b - 1)
 
 gameLoop :: GameBoard -> [Player] -> Turn -> IO ()
 gameLoop b ps t = 
@@ -50,7 +67,9 @@ gameLoop b ps t =
     ps' <- return $ replaceElem ps i p'
     pSpaceB $ renderBoardAndPlayers b ps'
     printPadding
-    gameLoop b ps' (t + 1)
+    case checkWinner b ps' of
+      Just p -> printWinner $ name p
+      Nothing -> gameLoop b ps' (t + 1)
 
 playGame = do
   printWelcome
