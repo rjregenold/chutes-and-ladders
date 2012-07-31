@@ -2,12 +2,17 @@ module Game.ChutesAndLadders.Cli where
 
 import Data.Char (toLower, toUpper)
 import Data.List (intercalate)
+import System.IO (hFlush, stdout)
 
 import Game.ChutesAndLadders.Types
 import Game.ChutesAndLadders.Util (randInt, trim)
 
 mkPrompt s = "(?) " ++ s
 prompt s = (putStr . mkPrompt . concat) [s, ": "]
+inlinePrompt s = do
+  prompt s
+  hFlush stdout
+  getLine 
 
 printWelcome = do
   printPadding
@@ -26,8 +31,7 @@ promptNumPlayers = promptNumber p 2 4 where
 
 promptPlayerName :: Int -> IO String
 promptPlayerName number = do
-  prompt $ "Enter name for player " ++ show number
-  name <- getLine
+  name <- inlinePrompt $ "Enter name for player " ++ show number
   case trim name of
     x | not $ null x -> return x
     _ -> promptPlayerName number
@@ -48,9 +52,9 @@ promptTurn EnterWord name = do
 promptWord word = let
   upperWord = map toUpper word 
   clean = map toLower . trim
+  p = concat ["Type this word to spin the spinner - [", upperWord, "]"]
   in do
-    (prompt . concat) ["Type this word to spin the spinner - [", upperWord, "]"]
-    input <- getLine
+    input <- inlinePrompt p
     w <- return $ clean input
     case word == w of
       True -> return word
@@ -58,8 +62,7 @@ promptWord word = let
 
 promptNumber :: String -> Int -> Int -> IO Int
 promptNumber p mn mx = do
-  prompt p
-  number <- getLine
+  number <- inlinePrompt p
   case reads number :: [(Int, String)] of
     [(x, _)] | x `elem` [mn..mx] -> return x
     _ -> do
