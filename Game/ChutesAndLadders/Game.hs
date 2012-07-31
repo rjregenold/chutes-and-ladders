@@ -13,12 +13,6 @@ import Game.ChutesAndLadders.Spinner (spinSpinner)
 import Game.ChutesAndLadders.Types
 import Game.ChutesAndLadders.Util (replaceElem)
 
-type Turn = Int
-type Steps = Int
-
-data GameMode = Normal | EnterWord
-data Move = Move Player Steps
-
 player (Move p _) = p
 
 getPlayers = do
@@ -55,12 +49,12 @@ checkWinner :: GameBoard -> [Player] -> Maybe Player
 checkWinner b ps = find f ps where
   f p = currentIndex p == (numTiles b - 1)
 
-gameLoop :: GameBoard -> [Player] -> Turn -> IO ()
-gameLoop b ps t = 
+gameLoop :: GameMode -> GameBoard -> [Player] -> Turn -> IO ()
+gameLoop gm b ps t = 
   let i = mod t $ length ps
       p = ps !! i
   in do
-    promptTurn $ name p
+    promptTurn gm $ name p
     spin <- spinSpinner
     putStrLn $ "You spun a " ++ show spin ++ "."
     (p', msg) <- return $ move b $ Move p spin
@@ -70,7 +64,7 @@ gameLoop b ps t =
     printPadding
     case checkWinner b ps' of
       Just p -> printWinner $ name p
-      Nothing -> gameLoop b ps' (t + 1)
+      Nothing -> gameLoop gm b ps' (t+1)
 
 getGameMode = do
   x <- promptGameMode
@@ -84,4 +78,4 @@ playGame = do
   printPaddingN 1
   players <- getPlayers
   printPadding
-  gameLoop emptyGameBoard players 0
+  gameLoop gameMode emptyGameBoard players 0

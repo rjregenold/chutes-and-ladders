@@ -9,21 +9,6 @@ import Game.ChutesAndLadders.Cli (printPaddingN, promptNumber, promptPlayerName)
 import Game.ChutesAndLadders.Types
 import Game.ChutesAndLadders.Util
 
-type Characters = [String]
-
-data Player = Player {
-  number :: Int,
-  name :: String,
-  currentIndex :: Int,
-  character :: String
-}
-
-instance Boxable Player where
-  boxes p = [text . show $ p]
-
-instance Show Player where
-  show p = character p
-
 characters = ["♘", "☃", "☺", "✿", "❤", "☼", "☁", "✝", "❀", "★"]
 
 -- groups players by currentIndex
@@ -45,14 +30,14 @@ makePlayers count = makePlayers' 1 count characters where
     cs' <- return $ cs \\ [character player]
     fmap (player :) $ makePlayers' (x+1) z cs'
 
-makePlayer :: Int -> Characters -> IO Player
+makePlayer :: Int -> [Character] -> IO Player
 makePlayer x cs = do
   name <- promptPlayerName x
   printPaddingN 1
   char <- selectCharacter cs
   return Player { number = x, name = name, character = char, currentIndex = -1 }
 
-selectCharacter :: Characters -> IO String
+selectCharacter :: [Character] -> IO Character
 selectCharacter cs = 
   let mx = length cs
       cs' = concatMap f $ zip [1..mx] cs

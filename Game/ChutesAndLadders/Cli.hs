@@ -1,8 +1,10 @@
 module Game.ChutesAndLadders.Cli where
 
+import Data.Char (toLower, toUpper)
 import Data.List (intercalate)
 
-import Game.ChutesAndLadders.Util (trim)
+import Game.ChutesAndLadders.Types
+import Game.ChutesAndLadders.Util (randInt, trim)
 
 mkPrompt s = "(?) " ++ s
 prompt s = (putStr . mkPrompt . concat) [s, ": "]
@@ -30,10 +32,29 @@ promptPlayerName number = do
     x | not $ null x -> return x
     _ -> promptPlayerName number
 
-promptTurn name = do
+promptTurn :: GameMode -> String -> IO String
+
+promptTurn Normal name = do
   putStrLn $ name ++ ", it's your turn!"
   putStrLn "Press [Enter] to spin the spinner."
   getLine
+
+promptTurn EnterWord name = do
+  putStrLn $ name ++ ", it's your turn!"
+  i <- randInt $ (length gameWords - 1)
+  word <- return $ gameWords !! i
+  promptWord word
+
+promptWord word = let
+  upperWord = map toUpper word 
+  clean = map toLower . trim
+  in do
+    (prompt . concat) ["Type this word to spin the spinner - [", upperWord, "]"]
+    input <- getLine
+    w <- return $ clean input
+    case word == w of
+      True -> return word
+      False -> promptWord word
 
 promptNumber :: String -> Int -> Int -> IO Int
 promptNumber p mn mx = do
