@@ -16,6 +16,7 @@ import Game.ChutesAndLadders.Util (replaceElem)
 type Turn = Int
 type Steps = Int
 
+data GameMode = Normal | EnterWord
 data Move = Move Player Steps
 
 player (Move p _) = p
@@ -71,8 +72,16 @@ gameLoop b ps t =
       Just p -> printWinner $ name p
       Nothing -> gameLoop b ps' (t + 1)
 
+getGameMode = do
+  x <- promptGameMode
+  return $ case x of
+    1 -> Normal
+    2 -> EnterWord
+
 playGame = do
   printWelcome
+  gameMode <- getGameMode
+  printPaddingN 1
   players <- getPlayers
   printPadding
   gameLoop emptyGameBoard players 0
